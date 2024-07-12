@@ -1,0 +1,29 @@
+artifact_path: model
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.10.13
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.5.1
+mlflow_version: 2.14.3
+model_size_bytes: 38977
+model_uuid: 4e0c48dc399e4f0ea79314a3d3a76eb6
+run_id: 8d03999c9c1f440c9f7585d915b890cf
+signature:
+  inputs: '[{"type": "long", "name": "HP", "required": true}, {"type": "long", "name":
+    "AC", "required": true}, {"type": "long", "name": "Str", "required": true}, {"type":
+    "long", "name": "Dex", "required": true}, {"type": "long", "name": "Con", "required":
+    true}, {"type": "long", "name": "Int", "required": true}, {"type": "long", "name":
+    "Wis", "required": true}, {"type": "long", "name": "Cha", "required": true}, {"type":
+    "long", "name": "level", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "object", "shape": [-1]}}]'
+  params: null
+utc_time_created: '2024-07-12 04:31:29.673219'

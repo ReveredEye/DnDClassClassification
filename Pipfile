@@ -9,6 +9,8 @@ jupyter = "*"
 pre-commit = "*"
 scikit-learn = "*"
 mlflow = "*"
+hyperopt = "*"
+sqlalchemy = "==1.4.36"
 
 [dev-packages]
 

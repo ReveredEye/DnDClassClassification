@@ -10,3 +10,6 @@ The features I will pass into the model will be 'HP', 'AC', 'Str', 'Dex', 'Con',
 class which will be labelled as 'target'. Note that 'level' column is derived by summing all values within 'class' column from the raw
 initial dataset, this is made to avoid model being confused by higher 'HP' values from larger levels.
 Data exploration is done in the eda notebook within `EDA` folder.
+
+The orchestration tool used is Airflow and to use it run `docker compose up` inside the directory `./airflow_docker` (MAKE SURE YOU ARE
+IN THE DIRECTORY TO RUN THIS as the docker-compose file is there). The username and password will both be `airflow`.

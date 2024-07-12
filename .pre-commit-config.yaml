@@ -6,4 +6,4 @@ repos:  # Run `pre-commit run` before `git commit`
       - id: end-of-file-fixer
       - id: name-tests-test
       - id: requirements-txt-fixer
-exclude: 'airflow/.*'
+exclude: 'airflow/.*|airflow_docker/.*|mlruns/.*|mlflow.db'
