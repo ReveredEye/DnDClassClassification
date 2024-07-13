@@ -24,11 +24,11 @@ from hyperopt.pyll import scope
 import mlflow
 from mlflow.entities import ViewType
 from mlflow.tracking import MlflowClient
-from airflow.models import DAG
-from airflow.operators.python import PythonOperator
+# from airflow.models import DAG
+# from airflow.operators.python import PythonOperator
 
-# def mlflow_set_tracking():
-#     mlflow.set_tracking_uri('sqlite:///mlflow.db')
+def mlflow_set_tracking():
+    mlflow.set_tracking_uri('sqlite:///mlflow.db')
 
 # Function to identify the class with the most levels in and use that as the target
 def dominantClass(classStr, justClass):
@@ -212,34 +212,26 @@ def register_model(**kwargs):
     best_model_uri = f'runs:/{best_run.info.run_id}/model'
     mlflow.register_model(model_uri = best_model_uri, name = 'best-DnD-RFModel')
 
-with DAG(
-    dag_id = 'dnd_classification_RFModel',
-    schedule_interval = '@daily',
-    start_date = datetime(2024, 7, 13),
-    end_date = datetime(2024, 7, 16),
-    catchup = False
-) as dag:
 
-    task_preprocess_data = PythonOperator(
-        task_id = 'preprocess_data',
-        python_callable = preprocess_data,
-        op_kwargs = {'rs_no': 13,
-                   'data_path': os.getcwd() + '/'}
-    )
+if __name__ == '__main__':
+        
+    # prep_kwargs = {'rs_no': 13,
+    #                'data_path': '/workspaces/DnDClassClassification/train_outputs/' or <os.getcwd() + '/processedData/'>}
+    # register_kwargs = {'data_path': '/workspaces/DnDClassClassification/train_outputs/'}
 
-    task_hyperopt_exp = PythonOperator(
-        task_id = 'hyperopt_experiment',
-        python_callable = hyperOptExperiment,
-        op_kwargs = {'data_path': os.getcwd() + '/',
-                     'num_trials': 10}
-    )
+    mlflow_set_tracking()
 
-    task_register_model = PythonOperator(
-        task_id = 'register_model',
-        python_callable = register_model,
-        op_kwargs = {'data_path': os.getcwd() + '/'}
-    )
+    # Parameter to change training data
+    changeTrainData = True
+    if changeTrainData:
+        preprocess_data(rs_no = 7, 
+                        data_path = os.getcwd() + '/processedData/' )
 
-    task_preprocess_data >> task_hyperopt_exp >> task_register_model
+    # Change this parameter to find optimal hyper parameters or not (as in use ones found before).
+    findHypers = True
+    if findHypers:
+        hyperOptExperiment(data_path = os.getcwd() + '/processedData/' , num_trials = 10)
 
+
+    register_model(data_path = os.getcwd() + '/processedData/' )
     
