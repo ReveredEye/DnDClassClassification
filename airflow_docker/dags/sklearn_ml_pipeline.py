@@ -1,4 +1,5 @@
 import os, sys
+from datetime import datetime
 from difflib import SequenceMatcher
 import numpy as np
 import pandas as pd
@@ -27,7 +28,6 @@ from airflow.models import DAG
 from airflow.operators.python import PythonOperator
 
 def mlflow_set_tracking():
-    import mlflow
     mlflow.set_tracking_uri('sqlite:///mlflow.db')
 
 # Function to identify the class with the most levels in and use that as the target
@@ -77,7 +77,7 @@ def dump_pickle(obj, filename):
 
 def preprocess_data(**kwargs):
     # kwargs -> {''rs_no': int, 'data_path': str}
-
+    import os, sys
     import pandas as pd
     from difflib import SequenceMatcher
     import pickle
@@ -92,6 +92,8 @@ def preprocess_data(**kwargs):
     X_trainVal, X_test, y_trainVal, y_test = train_test_split(df.loc[:, features], df.loc[:, target], test_size = 0.3, random_state = kwargs['rs_no'])
     X_train, X_val, y_train, y_val = train_test_split(X_trainVal, y_trainVal, test_size = 0.25, random_state = kwargs['rs_no'] + 3)
 
+    if not os.path.exists(kwargs['data_path']):
+        os.mkdir(kwargs['data_path'])
     dump_pickle((X_train, y_train), os.path.join(kwargs['data_path'], 'train.pkl'))
     dump_pickle((X_val, y_val), os.path.join(kwargs['data_path'], 'val.pkl'))
     dump_pickle((X_test, y_test), os.path.join(kwargs['data_path'], 'test.pkl'))
@@ -103,6 +105,7 @@ def load_pickle(filename):
 def hyperOptExperiment(**kwargs):
     # kwargs -> {'data_path': str, 'num_trials': int}
 
+    import os
     import pandas as pd
     import pickle
     from sklearn.ensemble import RandomForestClassifier
@@ -111,6 +114,7 @@ def hyperOptExperiment(**kwargs):
     from hyperopt.pyll import scope
     import mlflow
 
+    mlflow_set_tracking()
     mlflow.set_experiment('HPO-DnD-classification')
 
     X_train, y_train = load_pickle(os.path.join(kwargs['data_path'], 'train.pkl'))
@@ -167,7 +171,7 @@ def model_train(data_path, rf_params, params):
 
 def register_model(**kwargs):
     # kwargs -> {'data_path': str}
-
+    import os
     import pandas as pd
     import pickle
     from sklearn.ensemble import RandomForestClassifier
@@ -177,6 +181,7 @@ def register_model(**kwargs):
     from mlflow.entities import ViewType
     from mlflow.tracking import MlflowClient
 
+    mlflow_set_tracking()
     mlflow.set_experiment('DnD-classification')
     mlflow.sklearn.autolog(log_datasets = False)
     
@@ -203,27 +208,55 @@ def register_model(**kwargs):
     best_model_uri = f'runs:/{best_run.info.run_id}/model'
     mlflow.register_model(model_uri = best_model_uri, name = 'best-DnD-RFModel')
 
+with DAG(
+    dag_id = 'dnd_RF_classification',
+    schedule_interval = '@daily',
+    start_date = datetime(2024, 7, 13),
+    end_date = datetime(2024, 7, 16),
+    catchup = False
+) as dag:
 
+    task_preprocess_data = PythonOperator(
+        task_id = 'preprocess_data',
+        python_callable = preprocess_data,
+        op_kwargs = {'rs_no': 13,
+                   'data_path': os.getcwd() + '/processedData/'}
+    )
 
-if __name__ == '__main__':
+    task_hyperopt_exp = PythonOperator(
+        task_id = 'hyperopt_experiment',
+        python_callable = hyperOptExperiment,
+        op_kwargs = {'data_path': os.getcwd() + '/processedData/',
+                     'num_trials': 10}
+    )
+
+    task_register_model = PythonOperator(
+        task_id = 'register_model',
+        python_callable = register_model,
+        op_kwargs = {'data_path': os.getcwd() + '/processedData/'}
+    )
+
+    task_preprocess_data >> task_hyperopt_exp >> task_register_model
+
+# if __name__ == '__main__':
         
-    # prep_kwargs = {'rs_no': 13,
-    #                'data_path': '/workspaces/DnDClassClassification/train_outputs/' or <os.getcwd() + '/processedData/'>}
-    # register_kwargs = {'data_path': '/workspaces/DnDClassClassification/train_outputs/'}
+#     # prep_kwargs = {'rs_no': 13,
+#     #                'data_path': '/workspaces/DnDClassClassification/train_outputs/' or <os.getcwd() + '/processedData/'>}
+#     # register_kwargs = {'data_path': '/workspaces/DnDClassClassification/train_outputs/'}
 
-    mlflow_set_tracking()
+#     mlflow_set_tracking()
 
-    # Parameter to change training data
-    changeTrainData = True
-    if changeTrainData:
-        preprocess_data(rs_no = 7, 
-                        data_path = '/workspaces/DnDClassClassification/train_outputs/' )
+#     # Parameter to change training data
+#     changeTrainData = True
+#     if changeTrainData:
+#         preprocess_data(rs_no = 7, 
+#                         data_path = '/workspaces/DnDClassClassification/train_outputs/' )
 
-    # Change this parameter to find optimal hyper parameters or not (as in use ones found before).
-    findHypers = True
-    if findHypers:
-        hyperOptExperiment(data_path = '/workspaces/DnDClassClassification/train_outputs/' , num_trials = 10)
+#     # Change this parameter to find optimal hyper parameters or not (as in use ones found before).
+#     findHypers = True
+#     if findHypers:
+#         hyperOptExperiment(data_path = '/workspaces/DnDClassClassification/train_outputs/' , num_trials = 10)
 
 
-    register_model(data_path = '/workspaces/DnDClassClassification/train_outputs/' )
+#     register_model(data_path = '/workspaces/DnDClassClassification/train_outputs/' )
     
