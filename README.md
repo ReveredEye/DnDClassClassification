@@ -13,4 +13,4 @@ Data exploration is done in the eda notebook within `EDA` folder.
 
 The orchestration tool used is Airflow and to use it run `docker compose up` inside the directory `./airflow_docker` (MAKE SURE YOU ARE
 IN THE DIRECTORY TO RUN THIS as the docker-compose file is there). The username and password will both be `airflow`. To open mlflow run
-the command `mlflow ui --backend-store-uri sqlite:///mlflow.db`
+the command `mlflow ui --backend-store-uri sqlite:///mlflow.db`.
