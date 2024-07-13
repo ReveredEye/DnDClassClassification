@@ -26,6 +26,10 @@ from mlflow.tracking import MlflowClient
 from airflow.models import DAG
 from airflow.operators.python import PythonOperator
 
+def mlflow_set_tracking():
+    import mlflow
+    mlflow.set_tracking_uri('sqlite:///mlflow.db')
+
 # Function to identify the class with the most levels in and use that as the target
 def dominantClass(classStr, justClass):
     i = 0
@@ -72,10 +76,15 @@ def dump_pickle(obj, filename):
         return pickle.dump(obj, f_out)
 
 def preprocess_data(**kwargs):
-    # kwargs -> {'input_path': str , 'rs_no': int, 'data_path': str}
-    # recall to set path to '/workspaces/DnDClassClassification/data_raw/*.tsv'
-    # path = '/workspaces/DnDClassClassification/data_raw/dnd_chars_all.tsv'
-    df = data_clean(pd.read_csv(kwargs['input_path'], sep = '\t'))
+    # kwargs -> {''rs_no': int, 'data_path': str}
+
+    import pandas as pd
+    from difflib import SequenceMatcher
+    import pickle
+    from sklearn.model_selection import train_test_split
+
+
+    df = data_clean(pd.read_csv("https://raw.githubusercontent.com/oganm/dnddata/master/data-raw/dnd_chars_all.tsv", sep = '\t'))
 
     features = ['HP', 'AC', 'Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'level']
     target = 'target'
@@ -91,8 +100,19 @@ def load_pickle(filename):
     with open(filename, 'rb') as f_in:
         return pickle.load(f_in)
     
-def find_optimal(**kwargs):
+def hyperOptExperiment(**kwargs):
     # kwargs -> {'data_path': str, 'num_trials': int}
+
+    import pandas as pd
+    import pickle
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.metrics import accuracy_score
+    from hyperopt import STATUS_OK, Trials, fmin, hp, tpe
+    from hyperopt.pyll import scope
+    import mlflow
+
+    mlflow.set_experiment('HPO-DnD-classification')
+
     X_train, y_train = load_pickle(os.path.join(kwargs['data_path'], 'train.pkl'))
     X_val, y_val = load_pickle(os.path.join(kwargs['data_path'], 'val.pkl'))
 
@@ -146,8 +166,20 @@ def model_train(data_path, rf_params, params):
         mlflow.log_metric("test_acc", test_acc)
 
 def register_model(**kwargs):
-    # kwargs -> {'data_path': str, 'rf_params': list(str)}
+    # kwargs -> {'data_path': str}
 
+    import pandas as pd
+    import pickle
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.metrics import accuracy_score
+    
+    import mlflow
+    from mlflow.entities import ViewType
+    from mlflow.tracking import MlflowClient
+
+    mlflow.set_experiment('DnD-classification')
+    mlflow.sklearn.autolog(log_datasets = False)
+    
     client = MlflowClient(tracking_uri = "sqlite:///mlflow.db")
     experiment = client.get_experiment_by_name('HPO-DnD-classification')
     runs = client.search_runs(
@@ -156,8 +188,9 @@ def register_model(**kwargs):
         max_results = 5,
         order_by = ['metrics.accuracy_score DESC'])
     
+    rf_Params = ['max_depth', 'n_estimators', 'min_samples_split', 'min_samples_leaf', 'random_state']
     for run in runs:
-        model_train(kwargs['data_path'], kwargs['rf_params'], run.data.params)
+        model_train(kwargs['data_path'], rf_Params, run.data.params)
 
     experiment = client.get_experiment_by_name('DnD-classification')
     best_run = client.search_runs(
@@ -173,28 +206,24 @@ def register_model(**kwargs):
 
 
 if __name__ == '__main__':
-    mlflow.set_tracking_uri('sqlite:///mlflow.db')    
-    rf_Params = ['max_depth', 'n_estimators', 'min_samples_split', 'min_samples_leaf', 'random_state']
-    # prep_kwargs = {'input_path': '/workspaces/DnDClassClassification/data_raw/dnd_chars_all.tsv',
-    #                'rs_no': 13,
-    #                'data_path': '/workspaces/DnDClassClassification/train_outputs/'}
-    # register_kwargs = {'data_path': '/workspaces/DnDClassClassification/train_outputs/',
-    #                 'rf_params': rf_Params}
+        
+    # prep_kwargs = {'rs_no': 13,
+    #                'data_path': '/workspaces/DnDClassClassification/train_outputs/' or <os.getcwd() + '/processedData/'>}
+    # register_kwargs = {'data_path': '/workspaces/DnDClassClassification/train_outputs/'}
+
+    mlflow_set_tracking()
 
     # Parameter to change training data
     changeTrainData = True
     if changeTrainData:
-        preprocess_data(input_path = '/workspaces/DnDClassClassification/data_raw/dnd_chars_all.tsv', 
-                        rs_no = 7, 
-                        data_path = '/workspaces/DnDClassClassification/train_outputs/')
+        preprocess_data(rs_no = 7, 
+                        data_path = '/workspaces/DnDClassClassification/train_outputs/' )
 
     # Change this parameter to find optimal hyper parameters or not (as in use ones found before).
     findHypers = True
     if findHypers:
-        mlflow.set_experiment('HPO-DnD-classification')
-        find_optimal(data_path = '/workspaces/DnDClassClassification/train_outputs/', num_trials = 10)
+        hyperOptExperiment(data_path = '/workspaces/DnDClassClassification/train_outputs/' , num_trials = 10)
 
-    mlflow.set_experiment('DnD-classification')
-    mlflow.sklearn.autolog(log_datasets = False)
-    register_model(data_path = '/workspaces/DnDClassClassification/train_outputs/', rf_params = rf_Params)
+
+    register_model(data_path = '/workspaces/DnDClassClassification/train_outputs/' )
     
