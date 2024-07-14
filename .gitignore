@@ -1,5 +1,4 @@
 /mlruns
 /mlflow.db
 /airflow_docker/logs/dag_id=dnd_classification_RFModel
-/airflow_docker/logs/
 /local_run/mlruns
