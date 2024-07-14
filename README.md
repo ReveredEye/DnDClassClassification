@@ -10,7 +10,8 @@ Although there are 2 data files, the one I will be using is just the `dnd_chars_
 The features I will pass into the model will be 'HP', 'AC', 'Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'level' to predict the predominant
 class which will be labelled as 'target'. Note that 'level' column is derived by summing all values within 'class' column from the raw
 initial dataset, this is made to avoid model being confused by higher 'HP' values from larger levels.
-Data exploration is done in the eda notebook within `EDA` folder.
+Data exploration is done in the eda notebook within `EDA` folder. To initialise environment, just use the base directory (most outer) and
+run `pipenv shell` or create virtual environment from `requirements.txt`.
 
 
 The orchestration tool used is Airflow. Go in the directory `./airflow_docker` and make sure you have created the folders 
