@@ -35,4 +35,6 @@ To open mlflow run the command `mlflow ui --backend-store-uri sqlite:///mlflow.d
 
 
 The Flask application to deploy the model is within `flask_app` directory, you can run the app manually using `gunicorn --bind=0.0.0.0:9696 app_predict:app`
-once you are inside the `flask_app` directory.
+once you are inside the `flask_app` directory. In the `flask_app` directory, first build the docker container using `docker build -t dnd-class-prediction-service:v1 .`.
+Then make the container run using `docker run -it --rm -p 9696:9696 dnd-class-prediction-service:v1 .`. Run `python app_test.py` once the port is opened, the `app_test.py`
+file is used to test the docker container.

@@ -31,7 +31,15 @@ def get_model_from_registry(version_no = None):
         # Below will return warning as get_latest_versions is deprecated in mlflow since 2.9.0
         meta_data = client.get_latest_versions(model_name, stages = ["None"])
         model_version = meta_data[0].version
-    return mlflow.pyfunc.load_model(model_uri = f"models:/{model_name}/{model_version}")
+    try: 
+        model = mlflow.pyfunc.load_model(model_uri = f"models:/{model_name}/{model_version}")
+    except OSError as ose:
+        metadata_source = meta_data[0].source
+        idx = metadata_source.index('/mlruns')
+        path = os.getcwd() + metadata_source[idx:] + '/model.pkl'
+        with open(path, 'rb') as modelFile:
+            model = pickle.load(modelFile)
+    return model
 
 def prepare_features(stats):
     '''
