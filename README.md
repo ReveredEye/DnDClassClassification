@@ -10,16 +10,15 @@ Although there are 2 data files, the one I will be using is just the `dnd_chars_
 The features I will pass into the model will be 'HP', 'AC', 'Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'level' to predict the predominant
 class which will be labelled as 'target'. Note that 'level' column is derived by summing all values within 'class' column from the raw
 initial dataset, this is made to avoid model being confused by higher 'HP' values from larger levels.
-Data exploration is done in the eda notebook within `EDA` folder. To initialise environment, just use the base directory (most outer) and
+To initialise environment, just use the base directory (most outer) and
 run `pipenv shell` or create virtual environment from `requirements.txt`.
 
 
 The orchestration tool used is Airflow. Go in the directory `./airflow_docker` and make sure you have created the folders 
 `mkdir -p ./config ./plugins` (https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html). 
 You may have to initialize the database using `docker compose up airflow-init`.
-Run `docker compose up` inside the directory `./airflow_docker` (MAKE SURE YOU ARE
-IN THE DIRECTORY TO RUN THIS as the docker-compose file is there). The username and password will both be `airflow`. To open mlflow run
-the command `mlflow ui --backend-store-uri sqlite:///mlflow.db`. 
+Run `docker compose up` inside the directory `./airflow_docker` (MAKE SURE YOU ARE IN THE DIRECTORY TO RUN THIS as the docker-compose file is there). 
+The username and password will both be `airflow`. The name of the pipeline is `dnd_classification_RFModel`.
 
 
 In my runs, airflow for some reason gets stuck if zombie job if you just click manually for the pipeline to run. A way around this is to
@@ -30,3 +29,5 @@ run these commands in order (or alternatively just run `local_model.py` within `
     1 - `airflow tasks test dnd_classification_RFModel preprocess_data`
     2 - `airflow tasks test dnd_classification_RFModel hyperopt_experiment`
     3 - `airflow tasks test dnd_classification_RFModel register_model`
+
+To open mlflow run the command `mlflow ui --backend-store-uri sqlite:///mlflow.db`. Within there, the model to be deployed is `best-DnD-RFModel`.
