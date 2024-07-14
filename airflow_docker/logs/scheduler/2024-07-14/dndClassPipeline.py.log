@@ -1058,3 +1058,20 @@
 [2024-07-14T03:10:35.819+0000] {logging_mixin.py:188} INFO - [2024-07-14T03:10:35.818+0000] {dag.py:3096} INFO - Sync 1 DAGs
 [2024-07-14T03:10:35.842+0000] {logging_mixin.py:188} INFO - [2024-07-14T03:10:35.841+0000] {dag.py:3954} INFO - Setting next_dagrun for dnd_classification_RFModel to 2024-07-14 00:00:00+00:00, run_after=2024-07-15 00:00:00+00:00
 [2024-07-14T03:10:35.865+0000] {processor.py:183} INFO - Processing /opt/airflow/dags/dndClassPipeline.py took 3.237 seconds
+[2024-07-14T03:11:06.172+0000] {processor.py:161} INFO - Started process (PID=5546) to work on /opt/airflow/dags/dndClassPipeline.py
+[2024-07-14T03:11:06.172+0000] {processor.py:830} INFO - Processing file /opt/airflow/dags/dndClassPipeline.py for tasks to queue
+[2024-07-14T03:11:06.174+0000] {logging_mixin.py:188} INFO - [2024-07-14T03:11:06.173+0000] {dagbag.py:545} INFO - Filling up the DagBag from /opt/airflow/dags/dndClassPipeline.py
+[2024-07-14T03:11:09.575+0000] {processor.py:840} INFO - DAG(s) 'dnd_classification_RFModel' retrieved from /opt/airflow/dags/dndClassPipeline.py
+[2024-07-14T03:11:09.606+0000] {logging_mixin.py:188} INFO - [2024-07-14T03:11:09.605+0000] {dag.py:3096} INFO - Sync 1 DAGs
+[2024-07-14T03:11:09.631+0000] {logging_mixin.py:188} INFO - [2024-07-14T03:11:09.631+0000] {dag.py:3954} INFO - Setting next_dagrun for dnd_classification_RFModel to 2024-07-14 00:00:00+00:00, run_after=2024-07-15 00:00:00+00:00
+[2024-07-14T03:11:09.655+0000] {processor.py:183} INFO - Processing /opt/airflow/dags/dndClassPipeline.py took 3.505 seconds
+[2024-07-14T03:11:39.860+0000] {processor.py:161} INFO - Started process (PID=5616) to work on /opt/airflow/dags/dndClassPipeline.py
+[2024-07-14T03:11:39.861+0000] {processor.py:830} INFO - Processing file /opt/airflow/dags/dndClassPipeline.py for tasks to queue
+[2024-07-14T03:11:39.863+0000] {logging_mixin.py:188} INFO - [2024-07-14T03:11:39.863+0000] {dagbag.py:545} INFO - Filling up the DagBag from /opt/airflow/dags/dndClassPipeline.py
+[2024-07-14T03:11:42.714+0000] {processor.py:840} INFO - DAG(s) 'dnd_classification_RFModel' retrieved from /opt/airflow/dags/dndClassPipeline.py
+[2024-07-14T03:11:42.732+0000] {logging_mixin.py:188} INFO - [2024-07-14T03:11:42.732+0000] {dag.py:3096} INFO - Sync 1 DAGs
+[2024-07-14T03:11:42.757+0000] {logging_mixin.py:188} INFO - [2024-07-14T03:11:42.757+0000] {dag.py:3954} INFO - Setting next_dagrun for dnd_classification_RFModel to 2024-07-14 00:00:00+00:00, run_after=2024-07-15 00:00:00+00:00
+[2024-07-14T03:11:42.780+0000] {processor.py:183} INFO - Processing /opt/airflow/dags/dndClassPipeline.py took 2.926 seconds
+[2024-07-14T03:12:13.534+0000] {processor.py:161} INFO - Started process (PID=5684) to work on /opt/airflow/dags/dndClassPipeline.py
+[2024-07-14T03:12:13.537+0000] {processor.py:830} INFO - Processing file /opt/airflow/dags/dndClassPipeline.py for tasks to queue
+[2024-07-14T03:12:13.540+0000] {logging_mixin.py:188} INFO - [2024-07-14T03:12:13.539+0000] {dagbag.py:545} INFO - Filling up the DagBag from /opt/airflow/dags/dndClassPipeline.py
