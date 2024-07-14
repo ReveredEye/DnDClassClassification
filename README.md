@@ -15,7 +15,7 @@ run `pipenv shell` or create virtual environment from `requirements.txt`.
 
 
 The orchestration tool used is Airflow. Go in the directory `./airflow_docker` and make sure you have created the folders 
-`mkdir -p ./config ./plugins` (https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html). 
+`mkdir -p ./config ./plugins ./logs` (https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html). 
 You may have to initialize the database using `docker compose up airflow-init`.
 Run `docker compose up` inside the directory `./airflow_docker` (MAKE SURE YOU ARE IN THE DIRECTORY TO RUN THIS as the docker-compose file is there). 
 The username and password will both be `airflow`. The name of the pipeline is `dnd_classification_RFModel`.
@@ -30,4 +30,9 @@ run these commands in order (or alternatively just run `local_model.py` within `
     2 - `airflow tasks test dnd_classification_RFModel hyperopt_experiment`
     3 - `airflow tasks test dnd_classification_RFModel register_model`
 
+
 To open mlflow run the command `mlflow ui --backend-store-uri sqlite:///mlflow.db`. Within there, the model to be deployed is `best-DnD-RFModel`.
+
+
+The Flask application to deploy the model is within `flask_app` directory, you can run the app manually using `gunicorn --bind=0.0.0.0:9696 app_predict:app`
+once you are inside the `flask_app` directory.
