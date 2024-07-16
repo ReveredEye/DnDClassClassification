@@ -11,13 +11,13 @@ The features I will pass into the model will be 'HP', 'AC', 'Str', 'Dex', 'Con',
 class which will be labelled as 'target'. Note that 'level' column is derived by summing all values within 'class' column from the raw
 initial dataset, this is made to avoid model being confused by higher 'HP' values from larger levels.
 To initialise environment, just use the base directory (most outer) and
-run `pipenv shell` or create virtual environment from `requirements.txt`.
+run `pipenv shell` or create virtual environment from `requirements.txt`. For pre-commit hooks, there exists `.pre-commit-config.yaml`.
 
 
-The orchestration tool used is Airflow. Go in the directory `./airflow_docker` and make sure you have created the folders 
-`mkdir -p ./config ./plugins ./logs` (https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html). 
+The orchestration tool used is Airflow. Go in the directory `./airflow_docker` and make sure you have created the folders
+`mkdir -p ./config ./plugins ./logs` (https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html).
 You may have to initialize the database using `docker compose up airflow-init`.
-Run `docker compose up` inside the directory `./airflow_docker` (MAKE SURE YOU ARE IN THE DIRECTORY TO RUN THIS as the docker-compose file is there). 
+Run `docker compose up` inside the directory `./airflow_docker` (MAKE SURE YOU ARE IN THE DIRECTORY TO RUN THIS as the docker-compose file is there).
 The username and password will both be `airflow`. The name of the pipeline is `dnd_classification_RFModel`.
 
 
@@ -31,10 +31,10 @@ run these commands in order (or alternatively just run `local_model.py` within `
     3 - `airflow tasks test dnd_classification_RFModel register_model`
 
 
-To open mlflow run the command `mlflow ui --backend-store-uri sqlite:///mlflow.db`. Within there, the model to be deployed is `best-DnD-RFModel`.
+To open mlflow run the command `mlflow ui --backend-store-uri sqlite:///mlflow.db`. Within there, the model to be deployed is named `best-DnD-RFModel`.
 
 
 The Flask application to deploy the model is within `flask_app` directory, you can run the app manually using `gunicorn --bind=0.0.0.0:9696 app_predict:app`
 once you are inside the `flask_app` directory. In the `flask_app` directory, first build the docker container using `docker build -t dnd-class-prediction-service:v1 .`.
-Then make the container run using `docker run -it --rm -p 9696:9696 dnd-class-prediction-service:v1 .`. Run `python app_test.py` once the port is opened, the `app_test.py`
-file is used to test the docker container.
+Then deploy the model within the container using `docker run -it --rm -p 9696:9696 dnd-class-prediction-service:v1 .`. Run `python app_test.py` once the port is opened,
+the `app_test.py` file is used to test the docker container.

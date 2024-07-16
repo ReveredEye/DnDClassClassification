@@ -11,6 +11,8 @@ mlflow = "==2.14.3"
 pre-commit = "*"
 scikit-learn = "==1.5.1"
 apache-airflow = "==2.9.2"
+evidently = "*"
+jupyter = "*"
 
 [dev-packages]
 
