@@ -32,6 +32,8 @@ def mlflow_set_tracking():
 
 # Function to identify the class with the most levels in and use that as the target
 def dominantClass(classStr, justClass):
+    if classStr is None or justClass is None:
+        return None
     i = 0
     totalLvl = 0
     if '|' not in classStr:
@@ -63,12 +65,13 @@ def data_clean(df):
                                                 11: 'Mystic',  12: 'Paladin',  13: 'Ranger',  14: 'Rogue',  15: 'Sorcerer',  16: 'Warlock',  17: 'Wizard'},
                                     'counts': {0: 218,  1: 943,  2: 736,  4: 24,  5: 995,  7: 728,  8: 1441,  10: 732,  11: 13,  12: 874,  13: 792,  14: 1292,
                                             15: 664,  16: 677,  17: 760}})
-    df['target'], df['level'] = zip(*df[['class', 'justClass']].apply(lambda x: dominantClass(x['class'], x['justClass']), axis = 1))
+    pre_features = ['HP', 'AC', 'Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'class', 'justClass']
     features = ['HP', 'AC', 'Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'level']
     target = 'target'
+    dfDropNA = df[pre_features].dropna(how = 'any')
     colList = features + [target]
-    dfDropNA = df[colList].dropna(how = 'any')
-    cleanDf = dfDropNA.merge(realTargets['target'], how = 'inner', on = target)
+    dfDropNA['target'], dfDropNA['level'] = zip(*dfDropNA[['class', 'justClass']].apply(lambda x: dominantClass(x['class'], x['justClass']), axis = 1))
+    cleanDf = dfDropNA[colList].merge(realTargets['target'], how = 'inner', on = target)
     return cleanDf
 
 def dump_pickle(obj, filename):
@@ -214,10 +217,6 @@ def register_model(**kwargs):
 
 
 if __name__ == '__main__':
-        
-    # prep_kwargs = {'rs_no': 13,
-    #                'data_path': '/workspaces/DnDClassClassification/train_outputs/' or <os.getcwd() + '/processedData/'>}
-    # register_kwargs = {'data_path': '/workspaces/DnDClassClassification/train_outputs/'}
 
     mlflow_set_tracking()
 

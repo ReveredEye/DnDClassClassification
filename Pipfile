@@ -13,8 +13,10 @@ scikit-learn = "==1.5.1"
 apache-airflow = "==2.9.2"
 evidently = "*"
 jupyter = "*"
+shortuuid = "*"
 
 [dev-packages]
+pytest = "*"
 
 [requires]
 python_version = "3.10"
