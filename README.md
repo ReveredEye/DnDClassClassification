@@ -26,12 +26,17 @@ The username and password will both be `airflow`. The name of the pipeline is `d
 In my runs, airflow for some reason gets stuck if zombie job if you just click manually for the pipeline to run. A way around this is to
 run them individually in the shell. Use `docker ps -a` to find the `CONTAINER ID` corresponding to the image `airflow_docker-airflow-webserver`,
 and after running docker compose up get into its shell using `docker exec -it <container id> /bin/bash`. Once inside the airflow container in docker,
-run these commands in order (or alternatively just run `model_builder.py` within the `flask_app` folder or `local_model.py` within `./local_run` if
+run these commands in sequentially order (or alternatively just run `model_builder.py` within the `flask_app` folder or `local_model.py` within `./local_run` if
 you want to run it locally instead);
 
-    1 - `airflow tasks test dnd_classification_RFModel preprocess_data`
-    2 - `airflow tasks test dnd_classification_RFModel hyperopt_experiment`
-    3 - `airflow tasks test dnd_classification_RFModel register_model`
+
+1 - `airflow tasks test dnd_classification_RFModel preprocess_data`
+
+
+2 - `airflow tasks test dnd_classification_RFModel hyperopt_experiment`
+
+
+3 - `airflow tasks test dnd_classification_RFModel register_model`
 
 
 To open mlflow run the command `mlflow ui --backend-store-uri sqlite:///mlflow.db`. Within there, the model to be deployed is named `best-DnD-RFModel`.
