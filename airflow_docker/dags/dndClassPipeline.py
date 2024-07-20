@@ -32,6 +32,8 @@ from airflow.operators.python import PythonOperator
 
 # Function to identify the class with the most levels in and use that as the target
 def dominantClass(classStr, justClass):
+    if classStr is None or justClass is None:
+        return None
     i = 0
     totalLvl = 0
     if '|' not in classStr:
@@ -63,12 +65,13 @@ def data_clean(df):
                                                 11: 'Mystic',  12: 'Paladin',  13: 'Ranger',  14: 'Rogue',  15: 'Sorcerer',  16: 'Warlock',  17: 'Wizard'},
                                     'counts': {0: 218,  1: 943,  2: 736,  4: 24,  5: 995,  7: 728,  8: 1441,  10: 732,  11: 13,  12: 874,  13: 792,  14: 1292,
                                             15: 664,  16: 677,  17: 760}})
-    df['target'], df['level'] = zip(*df[['class', 'justClass']].apply(lambda x: dominantClass(x['class'], x['justClass']), axis = 1))
+    pre_features = ['HP', 'AC', 'Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'class', 'justClass']
     features = ['HP', 'AC', 'Str', 'Dex', 'Con', 'Int', 'Wis', 'Cha', 'level']
     target = 'target'
+    dfDropNA = df[pre_features].dropna(how = 'any')
     colList = features + [target]
-    dfDropNA = df[colList].dropna(how = 'any')
-    cleanDf = dfDropNA.merge(realTargets['target'], how = 'inner', on = target)
+    dfDropNA['target'], dfDropNA['level'] = zip(*dfDropNA[['class', 'justClass']].apply(lambda x: dominantClass(x['class'], x['justClass']), axis = 1))
+    cleanDf = dfDropNA[colList].merge(realTargets['target'], how = 'inner', on = target)
     return cleanDf
 
 def dump_pickle(obj, filename):
@@ -92,8 +95,8 @@ def preprocess_data(**kwargs):
     X_trainVal, X_test, y_trainVal, y_test = train_test_split(df.loc[:, features], df.loc[:, target], test_size = 0.3, random_state = kwargs['rs_no'])
     X_train, X_val, y_train, y_val = train_test_split(X_trainVal, y_trainVal, test_size = 0.25, random_state = kwargs['rs_no'] + 3)
 
-    if not os.path.exists(kwargs['data_path']):
-        os.mkdir(kwargs['data_path'])
+    # if not os.path.exists(kwargs['data_path']):
+    #     os.mkdir(kwargs['data_path'])
     dump_pickle((X_train, y_train), os.path.join(kwargs['data_path'], 'train.pkl'))
     dump_pickle((X_val, y_val), os.path.join(kwargs['data_path'], 'val.pkl'))
     dump_pickle((X_test, y_test), os.path.join(kwargs['data_path'], 'test.pkl'))
@@ -224,43 +227,22 @@ with DAG(
         task_id = 'preprocess_data',
         python_callable = preprocess_data,
         op_kwargs = {'rs_no': 13,
-                   'data_path': os.getcwd() + '/processedData/'}
+                   'data_path': os.getcwd() + '/'}
     )
 
     task_hyperopt_exp = PythonOperator(
         task_id = 'hyperopt_experiment',
         python_callable = hyperOptExperiment,
-        op_kwargs = {'data_path': os.getcwd() + '/processedData/',
+        op_kwargs = {'data_path': os.getcwd() + '/',
                      'num_trials': 10}
     )
 
     task_register_model = PythonOperator(
         task_id = 'register_model',
         python_callable = register_model,
-        op_kwargs = {'data_path': os.getcwd() + '/processedData/'}
+        op_kwargs = {'data_path': os.getcwd() + '/'}
     )
 
     task_preprocess_data >> task_hyperopt_exp >> task_register_model
 
-# if __name__ == '__main__':
-        
-#     # prep_kwargs = {'rs_no': 13,
-#     #                'data_path': '/workspaces/DnDClassClassification/train_outputs/' or <os.getcwd() + '/processedData/'>}
-#     # register_kwargs = {'data_path': '/workspaces/DnDClassClassification/train_outputs/'}
-
-#     mlflow_set_tracking()
-
-#     # Parameter to change training data
-#     changeTrainData = True
-#     if changeTrainData:
-#         preprocess_data(rs_no = 7, 
-#                         data_path = '/workspaces/DnDClassClassification/train_outputs/' )
-
-#     # Change this parameter to find optimal hyper parameters or not (as in use ones found before).
-#     findHypers = True
-#     if findHypers:
-#         hyperOptExperiment(data_path = '/workspaces/DnDClassClassification/train_outputs/' , num_trials = 10)
-
-
-#     register_model(data_path = '/workspaces/DnDClassClassification/train_outputs/' )
     

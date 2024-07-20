@@ -1,0 +1,12 @@
+deepdiff==7.0.1
+evidently==0.4.31
+Flask==3.0.3
+gunicorn==22.0.0
+jupyter==1.0.0
+mlflow==2.14.3
+numpy==1.26.4
+pandas==2.2.2
+requests==2.32.3
+scikit-learn==1.5.1
+shortuuid==1.0.13
+SQLAlchemy==1.4.52
