@@ -23,7 +23,7 @@ Run `docker compose up` inside the directory `./airflow_docker` (MAKE SURE YOU A
 The username and password will both be `airflow`. The name of the pipeline is `dnd_classification_RFModel`.
 
 
-In my runs, airflow for some reason gets stuck if zombie job if you just click manually for the pipeline to run. A way around this is to
+In my runs, airflow for some reason gets stuck due to zombie job error if you just click manually for the pipeline to run. A way around this is to
 run them individually in the shell. You can just run `docker run --rm -it --entrypoint bash airflow_docker-airflow-webserver` (or use `docker ps -a` to find the 
 `CONTAINER ID` corresponding to the image `airflow_docker-airflow-webserver`, and after running docker compose up get into its shell using 
 `docker exec -it <container id> /bin/bash`). Once inside the airflow container in docker, run these commands in sequential order 
