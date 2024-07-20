@@ -17,6 +17,7 @@ shortuuid = "*"
 
 [dev-packages]
 pytest = "*"
+deepdiff = "*"
 
 [requires]
 python_version = "3.10"

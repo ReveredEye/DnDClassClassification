@@ -11,7 +11,7 @@ The features I will pass into the model will be 'HP', 'AC', 'Str', 'Dex', 'Con',
 class which will be labelled as 'target'. Note that 'level' column is derived by summing all values within 'class' column from the raw
 initial dataset, this is made to avoid model being confused by higher 'HP' values from larger levels.
 To initialise environment, just use the base directory (most outer) and run `pipenv shell` or create virtual environment from `requirements.txt` 
-(If you are doing the `requirements.txt` way, you need to also run `pip install --dev pytest` to perform tests). You also need to make sure you
+(If you are doing the `requirements.txt` way, you need to also run `pip install --dev pytest` and `pip install --dev deepdiff` to perform tests). You also need to make sure you
 have Python and Jupyter extensions installed into workspace (for VSCode, install it in the IDE or the remote codespace if you're doing that).
 For pre-commit hooks, there exists `.pre-commit-config.yaml`.
 
@@ -26,7 +26,7 @@ The username and password will both be `airflow`. The name of the pipeline is `d
 In my runs, airflow for some reason gets stuck if zombie job if you just click manually for the pipeline to run. A way around this is to
 run them individually in the shell. Use `docker ps -a` to find the `CONTAINER ID` corresponding to the image `airflow_docker-airflow-webserver`,
 and after running docker compose up get into its shell using `docker exec -it <container id> /bin/bash`. Once inside the airflow container in docker,
-run these commands in sequentially order (or alternatively just run `model_builder.py` within the `flask_app` folder or `local_model.py` within `./local_run` if
+run these commands in sequential order (or alternatively just run `model_builder.py` within the `flask_app` folder or `local_model.py` within `./local_run` if
 you want to run it locally instead);
 
 
@@ -44,9 +44,10 @@ To open mlflow run the command `mlflow ui --backend-store-uri sqlite:///mlflow.d
 
 The Flask application to deploy the model is within `flask_app` directory, you can run the app manually using `gunicorn --bind=0.0.0.0:9696 app_predict:app`
 once you are inside the `flask_app` directory. In the `flask_app` directory, first build the docker container using `docker build -t dnd-class-prediction-service:v1 .`.
-Then deploy the model within the container using `docker run -it --rm -p 9696:9696 dnd-class-prediction-service:v1 .`. Run `python app_test.py` once the port is opened,
-the `app_test.py` file is used to specifically test the docker container. The basic monitoring is done using `evidently` within the `model_monitoring.ipynb` notebook inside the
-`flask_app` folder.
+Then deploy the model within the container using `docker run -it --rm -p 9696:9696 dnd-class-prediction-service:v1 .`. The tests are located within `integration_test` and
+`tests` folders. You can configure pytest to the `flask_app` folder to run unit tests. For the integration test go inside the `integration_test` directory and give the file
+execute permission using `chmod +x ./run.sh`, then just run `./run.sh` (although not necessary, you get the error code after using `echo $?`).
+The basic monitoring is done using `evidently` within the `model_monitoring.ipynb` notebook inside the `flask_app` folder.
 
 
 For unit testing, the two files `data_test.py` and `model_test.py` are used under `pytest`.

@@ -1,5 +1,6 @@
 import json
 import requests
+from deepdiff import DeepDiff
 
 # This character is Sorcerer 6/ Warlock 2/ Fighter 4
 character1 = {
@@ -27,5 +28,11 @@ character2 = {
 }
 
 url = 'http://localhost:9696/predict'
-response = requests.post(url, json = character1)
-print(response.json())
+actual_response = requests.post(url, json = character1).json()
+expected_response = {'target': 'Sorcerer'} # To test if error occurs -> 'Not class'
+
+diff = DeepDiff(actual_response, expected_response)
+print(f'diff = {diff}')
+
+assert 'type_changes' not in diff
+assert 'values_changed' not in diff
