@@ -7,7 +7,7 @@ export LOCAL_IMAGE_NAME="dnd-class-prediction-service:${LOCAL_TAG}"
 
 docker build -t ${LOCAL_IMAGE_NAME} ..
 
-docker-compose up -d
+docker-compose up backend -d
 
 sleep 1
 
